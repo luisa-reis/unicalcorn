@@ -4,10 +4,14 @@ import logger from './logger.js';
 
 import {useEffect} from './ui.js';
 
+const MAC_ADDRESS = /^([0-9a-f]{2}:){5}[0-9a-f]{2}$/i;
+
 export default function usePowermateBLE({config, setTimeOffset}) {
   useEffect(() => {
     let powermateMAC = config?.devices?.['powermate-ble'];
-    if (powermateMAC == null) {
+    // A missing entry, or the sample's '<mac-address>' placeholder, means no
+    // Bluetooth PowerMate: do not scan (see README, scanning leaks memory).
+    if (powermateMAC == null || !MAC_ADDRESS.test(powermateMAC)) {
       logger.trace('no powermate ble config');
       return;
     }

@@ -13,3 +13,21 @@ Quick glance your calendar schedule
 
 - [Bill of Materials](/docs/bom.md)
 - [Installation](/docs/installation.md)
+
+## Bluetooth PowerMate: disable it when not in use
+
+The `devices.powermate-ble` entry in `config.json` holds the MAC address of a
+Griffin PowerMate Bluetooth. **Remove the entry (or the whole `devices`
+block) unless that knob is actually paired and in range.** A value that is
+not a MAC address, such as the sample's `<mac-address>`, is ignored. The USB knobs
+(PowerMate USB, Rotary Trinkey) need no configuration and are not affected.
+
+Why: while the entry is present and the knob is not connected, the app scans
+for it continuously. The Bluetooth library ([noble](https://github.com/noble/noble))
+records every advertising device it hears in an internal table
+(`_discoveries` in `lib/hci-socket/gap.js`) and never removes an entry.
+Phones, watches and earbuds rotate their Bluetooth address every few
+minutes, so the table grows without bound: about 400 bytes per address,
+from ~20 KB/h in a quiet house to over 300 KB/h in a busy one. On a Pi
+Zero 2 W (128 MB JavaScript heap) this ended in
+`FATAL ERROR: ... JavaScript heap out of memory` after 44 days of uptime.
